@@ -37,7 +37,7 @@
                     </li>
                 </ul>
 
-                <div class="d-flex gap-2" id="authButtons">
+                <div class="" id="authButtons">
                     <a href="Login.html" class="btn btn-primary">Login</a>
                     <a href="Register.html" class="btn btn-primary">Register</a>
                 </div>
@@ -52,20 +52,20 @@
                 <tr>
                     <th class="bg-dark text-white">Image</th>
                     <th class="bg-dark text-white">Product</th>
-                    <th  class="bg-dark text-white">Price</th>
+                    <th class="bg-dark text-white">Price</th>
                     <th class="bg-dark text-white">Quantity</th>
                     <th class="bg-dark text-white">Total</th>
                     <th class="bg-dark text-white">Action</th>
                 </tr>
             </thead>
             <tbody id="cartItems">
+
             </tbody>
         </table>
         <div class=" text-end">
             <h2 id="cartTotal">Total: $</h2>
         </div>
-        
-        <div>
+        <div class>
             <button class="btn btn-primary" id="home">Back To Home</button>
         </div>
     </div>
@@ -73,41 +73,62 @@
     <script>
         let cart = JSON.parse(localStorage.getItem('cart')) || []
 
-        function displayCartItems(){
+        function displayCartItems() {
             const cartItemContainer = document.getElementById("cartItems");
             cartItemContainer.innerHTML = ''
             let total = 0;
 
-            cart.forEach(item=>{
+            cart.forEach(item => {
                 total += item.price * item.quantity;
 
                 const cartRow = document.createElement('tr');
-                cartRow.innerHTML =  
-                `
+                cartRow.innerHTML =
+                    `
                 <td><img src="${item.thumbnail}" style="height:100px;width:100px;object-fit:contain"></td>
                 <td>${item.title}</td>
-                <td>${item.price}</td>
-                <td>${item.quantity}</td>
-                <td>$${item.price * item.quantity}</td>
-                <td><button class="btn btn-danger">Delete</button></td>
+                <td>$ ${item.price}</td>
+                <td>
+                    <button class="btn btn-danger" onclick="changeQuantity(${item.id},-1)">
+                    -
+                    </button>
+                ${item.quantity}
+                    <button class="btn btn-primary" onclick="changeQuantity(${item.id},1)">
+                    +
+                    </button>
+                </td>
+                <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                <td><button class="btn btn-danger" onclick="removeFromCart(${item.id})">Delete</button></td>
                 `
 
                 cartItemContainer.appendChild(cartRow)
-
-                document.getElementById("cartTotal").textContent = `Total:$ ${total}`
             })
             updateCartBadge()
+            document.getElementById("cartTotal").textContent = `Total:$ ${total.toFixed(2)}`
         }
 
-        function updateCartBadge(){
-                const cartBadge = document.getElementById("cartBadge");
-                cartBadge.textContent = cart.reduce((total,item)=> total+item.quantity,0)
+        function updateCartBadge() {
+            const cartBadge = document.getElementById("cartBadge");
+            cartBadge.textContent = cart.reduce((total, item) => total + item.quantity, 0)
+        }
+
+        function changeQuantity(productId,change){
+            const cartItem = cart.find(item=> item.id === productId);
+            if(cartItem){
+                cartItem.quantity = cartItem.quantity+change;
             }
-
-        const loggedInUser = localStorage.getItem('loggedInUser');
-        if (loggedInUser) {
-            window.location.href = 'login.html'
+            localStorage.setItem('cart',JSON.stringify(cart));
+            displayCartItems()
         }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId)
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCartItems()
+        }
+        document.getElementById("home").addEventListener('click',()=>{
+            window.location.href = 'index.html'
+        })
+
         displayCartItems()
     </script>
 
